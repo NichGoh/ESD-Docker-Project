@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+
+  ###################################
+  # Reservation: The Reservation microservice
+  ###################################
+  reservation:
+    build:
+      context: ./
+      dockerfile: reservation.Dockerfile
+    image: nichgoh/reservation:esd
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/reservation
+      PYTHONUNBUFFERED: 1
+
+  ###############################################
+  # Display Analytics: The Display Analytics microservice
+  ###############################################
+  display_analytics:
+    build:
+      context: ./
+      dockerfile: display_analytics.Dockerfile
+    image: nichgoh/display_analytics:esd
+    restart: always
+    depends_on:
+      - retrieve_data
+    environment:
+      retrieve_data_URL: "http://retrieve_data:5003/data"
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "4020:4020"
+
+  ###############################################
+  # Retrieve Data: The Retrieve Data microservice
+  ###############################################
+  retrieve_data:
+    build:
+      context: ./
+      dockerfile: retrieve_data.Dockerfile
+    image: nichgoh/retrieve_data:esd
+    restart: always
+    depends_on:
+      - reservation
+    environment:
+      reservation_URL: http://reservation:5000/reservation
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5003:5003"
+  

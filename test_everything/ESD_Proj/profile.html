@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESTaurant4you</title>
+
+    <!-- Vue.js Version 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<style>
+    body {background-color: lightgrey;}
+</style>
+<body>
+
+    <div id="main">
+        <div class="">
+            <!-- <img src="./logo.png" class="rounded mx-auto d-block" style = "width: 250px; height: 250px;" alt=""> -->
+        </div>
+        <nav class="navbar navbar-expand-lg" style="background-color: #ad2b2d;">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item" v-if="userData.UserType != 'restaurant_owner'">
+                            <a class="nav-link active text-white" aria-current="page" href="home_reco.html">Home</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div style="background-color: lightgrey;">
+            <!-- Login Form -->
+            <h1 class="text-center">Profile </h1>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4 ">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">User Details</h5> <!-- Modify the card title here -->
+                                <p class="card-text">User ID: {{ userData.UserID }}</p>
+                                <p class="card-text">Username: {{ userData.Username }}</p>
+                                <p class="card-text">Email: {{ userData.Email }}</p>
+                                <p class="card-text">Name: {{ userData.Name }}</p>
+                            </div>
+                            <div class="card-footer">
+                                <button class="btn btn-danger" @click="logout">Logout</button>
+                            </div>
+                        </div>
+                        <div v-if="userData.UserType == 'restaurant_owner'">
+                             <!-- Resturant owner-specific content here -->
+                             <div class="card">
+                                <div class="card-footer"><button class="btn btn-danger" @click="viewAnalytics">View Analytics
+                                    Dashboard</button></div>
+                            </div>
+                        </div>
+                        <div v-else>
+                        </div>
+                    </div>
+
+                    <div class="col-md-8 ">
+                        <div class="card" v-if="userData.UserType == 'restaurant_owner'">
+                            <div class="card-body">
+                                <h5 class="card-title">Restaurant Details</h5> <!-- Modify the card title here -->
+                                <p class="card-text">Opening hours: {{ resturantData.Opening_hours }}</p>
+                                <p class="card-text">Location: {{ resturantData.Location }}</p>
+                                <p class="card-text">Cuisine: {{ resturantData.Cuisine }}</p>
+                                <p class="card-text">Contact: {{ resturantData.Contact }}</p>
+                                <p class="card-text">Title Image: </p>
+                                <img :src="resturantData.Title_image" alt="Title Image" class="img-fluid">
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+    <script>
+        const app = Vue.createApp({
+            created() {
+                // Check if token exists in local storage
+                const token = localStorage.getItem('token');
+                if (token) {
+                    // Perform necessary actions if token exists
+                    console.log('Token exists:', token);
+                    this.getuserdetails();
+                    // Add your code here to handle the token
+                } else {
+                    // Redirect to login page if token does not exist
+                    console.log('Token does not exist');
+                    window.location.href = './login.html';
+                }
+            },
+            data() {
+                return {
+                    userData: {
+                        UserID: "",
+                        UserType: "",
+                        Username: "",
+                        Email: "",
+                        Name: "",
+                        iat: 0,
+                        exp: 0
+                    },
+                    resturantData: {
+                        username: "",
+                        email: "",
+                        Name: "",
+                        Opening_hours: "",
+                        Location: "",
+                        Cuisine: "",
+                        Contact: "",
+                        Title_image: ""
+                    },
+                    outsystem: {
+                        baseURL: "https://personal-wh7faulr.outsystemscloud.com/RestaurantAPI/rest/v1",
+                        getResturantDetails: "/Restaurant/",
+                        getAllResturants: "Restaurants/",
+                        postAddResturant: "/AddRestaurants/",
+                    }
+
+                }
+            },
+            methods: {
+                getuserdetails() {
+                    var token = localStorage.getItem('token');
+                    fetch('http://localhost:4000/users/validatetoken', {
+                        method: 'GET',
+                        headers: {
+                            'x-auth-token': token,
+                        },
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Success:', data);
+                            // Assuming successful login, display user token
+                            this.userData = data.data;
+                            if (this.userData.UserType == 'restaurant_owner') {
+                                this.getRestaurantDetails();
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                        });
+                },
+                getRestaurantDetails() {
+                    fetch(this.outsystem.baseURL + this.outsystem.getResturantDetails + this.userData.Username, {
+                        method: 'GET'
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Success:', data);
+                            // Assuming successful login, display user token
+                            this.resturantData = data.Restaurant;
+                            console.log(this.resturantData);
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                        });
+                },
+                logout() {
+                    localStorage.removeItem('token');
+                    window.location.href = './login.html';
+                },
+                viewAnalytics() {
+                    window.location.href = 'http://localhost:4020/analytics/'+ this.resturantData.username;
+                }
+            }
+        });
+        app.mount('#main');
+    </script>
+    <script src=""> </script>
+
+</body>
+
+</html>

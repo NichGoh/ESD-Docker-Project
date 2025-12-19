@@ -1,0 +1,88 @@
+version: "3.8"
+
+volumes:
+  rabbitmq_data:
+
+services:
+
+  ####################################
+  # RabbitMQ: The messaging broker   
+  ####################################
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: esd-rabbit
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes: 
+      - ./rabbitmq.config:/etc/rabbitmq/rabbitmq.config
+      - ./rabbitmq_definitions.json:/etc/rabbitmq/rabbitmq_definitions.json
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  ###################################
+  # Loyalty: The Loyalty microservice
+  ###################################
+  loyalty:
+    build:
+      context: ./
+      dockerfile: loyalty.Dockerfile
+    image: nichgoh/loyalty:esd
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/loyalty_record
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5001:5001"
+
+  ###################################
+  # Reservation: The Reservation microservice
+  ###################################
+  reservation:
+    build:
+      context: ./
+      dockerfile: reservation.Dockerfile
+    image: nichgoh/reservation:esd
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/reservation
+      PYTHONUNBUFFERED: 1
+
+  #################################################
+  # Send Email: The Send Email microservice
+  #################################################
+  send_email:
+    build:
+      context: ./
+      dockerfile: send_email.Dockerfile
+    image: nichgoh/send_email:esd
+    restart: always
+    depends_on:
+      - rabbitmq
+    environment:
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
+      queue_name: reservation_confirmation
+      PYTHONUNBUFFERED: 1
+  
+  ###############################################
+  # Make Reservation: The Make Reservation microservice
+  ###############################################
+  make_reservation:
+    build:
+      context: ./
+      dockerfile: make_reservation.Dockerfile
+    image: nichgoh/make_reservation:esd
+    restart: always
+    depends_on:
+      - loyalty
+      - reservation
+      - send_email
+    environment:
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
+      loyalty_URL: http://loyalty:5001/loyalty_record
+      reservation_URL: http://reservation:5000/reservation
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5100:5100"

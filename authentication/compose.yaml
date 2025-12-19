@@ -1,0 +1,26 @@
+version: "3.8"
+
+volumes:
+  rabbitmq_data:
+
+services:
+
+  ####################################
+  # Authentication: The Authentication Microservice   
+  ####################################
+  authentication:
+    build:
+      context: ./
+      dockerfile: authentication.Dockerfile
+    ports:
+      - '4000:4000'
+    environment:
+      - PORT=4000
+      - DBNAME=user
+      - DBUSER=root
+      - DBPASS=
+      - DBHOST=host.docker.internal 
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+

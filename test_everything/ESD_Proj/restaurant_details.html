@@ -1,0 +1,103 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+
+    <!-- Vue.js Version 3 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.0.2/dist/vue.global.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity='sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC'
+    crossorigin='anonymous'>
+</head>
+<body style="background-color: white;">
+<div id="app" style="width:100%;height:100%;">
+    <div class="d-flex flex-row">
+      <img src="./logo.png" class="rounded d-block" style = "width: 150px; height: 150px; margin-left: 70px;" alt="">
+      <h2 class="" style=" display: flex;
+      justify-content: center;
+      align-items: center; margin-top: 10px;">Restaurant4you</h2>
+    </div>
+    <nav class="navbar navbar-expand-lg" style="background-color: #ad2b2d;">
+      <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" style="color: white; margin-left: 80px;" aria-current="page" href="home_reco.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" style="color: white;" aria-current="page" href="profile.html">Profile</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>    
+    <div class="d-flex flex-column" style="margin-left: 25px; margin-right: 25px;">
+      <img :src="image" style="width: 50%; height:300px; margin-top: 20px; margin-left:70px;" alt="" class="">
+      <h2 class="" style="margin-top: 20px;margin-left:70px">{{name}}</h2>
+    </div>
+    <hr>
+    <div class=" d-flex flex-column" style="background-color: white; margin-left: 70px;margin-right: 70px;">
+        <div class="content" >
+            <iframe class="col-md-6" :src= mapEmbedUrl
+            width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            <div class="info col-md-6" style="color:black;margin-left: 50px;margin-right:20px;">
+                <div class="hours" >
+                    <h2>Restaurant Details</h2>
+                </div>
+                <div style="margin-left:50px; padding-right:30px; padding-top: 10px;">
+                <h5>Cuisine: {{cuisine}}</h5>
+                <h5>Contact: {{contact}}</h5>
+                <h5>Email: {{email}}</h5>
+                <h5>Location: {{ location }}</h5>
+                <h5>Operating hours: {{operating_hours}}</h5>
+                <div class="location">
+                </div>
+              </div> 
+              <form action="">
+                <a class="reservation-btn" href="reservation_page.html" role="button" style="margin-left:50px" >Make a Reservation</a>
+                <input type="hidden" id= "restaurant_username" name="restaurant_username" :value=restaurant_username >
+              </form>
+            </div>
+        </div>
+    </div>
+  </div>
+
+</body>
+</html>
+<script src="restaurant_details.js"></script>
+
+<style>
+
+.content {
+  display: flex;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.map {
+  flex-grow: 1;
+  height: 400px;
+}
+
+.hours {
+  text-align: center; 
+}
+.reservation-btn {
+  align-self: flex-end;
+  padding: 10px 20px;
+  background-color: blue;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.reservation-btn:hover {
+  background-color: darkblue;
+}
+</style>
+

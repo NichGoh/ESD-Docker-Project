@@ -1,0 +1,16 @@
+
+h2 {
+    text-align: center;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #ad2b2d;
+    color: white;
+    border: none;
+    border-radius: 15px;
+}
+button:hover {
+    background-color: #872021;
+}
+

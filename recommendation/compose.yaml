@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+
+  ###################################
+  # Survey: The Survey microservice
+  ###################################
+  survey:
+    build:
+      context: ./
+      dockerfile: survey.Dockerfile
+    image: nichgoh/order:esd
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/survey_record
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5004:5004"
+ 
+  ###############################################
+  # Make Recommendation: The Make Recommendation microservice
+  ###############################################
+  make_recommendation:
+    build:
+      context: ./
+      dockerfile: make_recommendation.Dockerfile
+    image: nichgoh/make_recommendation:esd
+    restart: always
+    depends_on:
+      - survey
+    environment:
+      survey_URL: http://survey:5004/survey
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5101:5101"
